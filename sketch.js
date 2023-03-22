@@ -317,7 +317,7 @@ function mouseReleased(){
 
   //if the word is a found word, print it
   if(foundWords.includes(currentWord)){
-    console.log("You already found " + currentWord);
+    //c0nsole.log("You already found " + currentWord);
   } else if (existingWords.includes(currentWord)) {
     let wordScore = getWordScore(currentWord);
 
@@ -329,7 +329,7 @@ function mouseReleased(){
     foundTicks.unshift(0);
 
 
-    console.log(currentWord);
+    //c0nsole.log(currentWord);
 
     gameTicksRemaining += wordScore * 100;
 
@@ -345,7 +345,7 @@ function mouseReleased(){
     }
 
   }else{
-    console.log(currentWord + " is not a word");
+    //c0nsole.log(currentWord + " is not a word");
   }
 
   //reset the word
@@ -461,7 +461,7 @@ function startRandomGame(){
   }
 
   for(let i = 0; i < existingWords.length; i++){
-    console.log(existingWords[i]);
+    //c0nsole.log(existingWords[i]);
   }
 }
 
@@ -611,7 +611,7 @@ function generateAllWords(letters){
 
   //print all the existingWords
   // for (let i = 0; i < existingWords.length; i++) {
-  //   console.log(existingWords[i]);
+  //   c0nsole.log(existingWords[i]);
   // }
 
   return existingWords;
