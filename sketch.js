@@ -10,7 +10,7 @@ let foundTicks = [];
 let cells = [];
 let len;
 
-let gridSize = 40;
+let gridSize = 60;
 let selectRadius = gridSize / 2 - 5;
 let letterSize = gridSize / 2;
 let gridMargin = 4;
