@@ -29,7 +29,7 @@ let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 let score = 0;
 
 let gameState = "menu";
-const gameTicks = 3_00;
+const gameTicks = 3_000;
 let gameTicksRemaining = gameTicks;
 let pathIndex = 0;
 let buttons = [];
