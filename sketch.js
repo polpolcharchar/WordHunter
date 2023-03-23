@@ -207,28 +207,15 @@ function checkMousePosition(){
 }
 
 function drawTicksRemainingMeter(){
-  //draw a meter that shows how much time is left
-  // fill(0);
-  // noStroke();
-  // rect(width - 200 - 100, 10, 200, 20);
-  // fill(infoColor);
-  // rect(width - 200 - 100, 10, 200 * gameTicksRemaining / gameTicks, 20);
-  
-  //draw a circular meter that shows how much time is left
-  // fill(0);
-  // noStroke();
-  // ellipse(width - 100, 30, 60, 60);
-  // fill(infoColor);
-  // arc(width - 100, 30, 60, 60, 0, 2 * PI * gameTicksRemaining / gameTicks);
 
   //draw a circular meter that shows how much time is left
   //it will empty clockwise, starting from the top
   fill(infoColor);
   stroke(0);
-  ellipse(width - meterRadius - 10, meterRadius + 10, meterRadius * 2, meterRadius * 2);
+  ellipse(width - meterRadius - 10, 60 + infoSize + meterRadius, meterRadius * 2, meterRadius * 2);
   fill(0);
   noStroke();
-  arc(width - meterRadius - 10, meterRadius + 10, meterRadius * 2, meterRadius * 2, -PI / 2, -PI / 2 - 2 * PI * gameTicksRemaining / gameTicks, PIE);
+  arc(width - meterRadius - 10, 60 + infoSize + meterRadius, meterRadius * 2, meterRadius * 2, -PI / 2, -PI / 2 - 2 * PI * gameTicksRemaining / gameTicks, PIE);
 
 
 }
@@ -250,19 +237,23 @@ function drawCurrentPath(){
 }
 
 function drawScore(){
-  textAlign(LEFT);
+  textAlign(LEFT, TOP);
   //draw the score rounded to 2 decimal places above the grid
   fill(infoColor);
   textSize(infoSize);
-  text("Score: " + round(score * 100) / 100, (width - len * gridSize) / 2, (height - len * gridSize) / 2 - 15);
+  //text("Score: " + round(score * 100) / 100, (width - len * gridSize) / 2, (height - len * gridSize) / 2 - 15);
+  let t = "Score: " + round(score * 100) / 100;
+  text(t, width - textWidth(t) - 10, 10);
 }
 
 function drawWord(word){
-  textAlign(LEFT, CENTER);
+  textAlign(LEFT, TOP);
   //draw the word above the grid, on the top right
   fill(infoColor);
   textSize(infoSize);
-  text(word, (width - len * gridSize) / 2 + len * gridSize - textWidth(word), (height - len * gridSize) / 2 - 10);
+  // text(word, (width - len * gridSize) / 2 + len * gridSize - textWidth(word), (height - len * gridSize) / 2 - 10);
+  let t = "Word: " + word;
+  text(t, width - textWidth(t) - 10, 50);
 }
 
 function drawLetters(){
