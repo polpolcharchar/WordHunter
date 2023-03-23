@@ -219,8 +219,12 @@ function drawTicksRemainingMeter(){
   ellipse(width - meterRadius - 10, 10 + infoSize * 1.5 * 2 + meterRadius, meterRadius * 2, meterRadius * 2);
   fill(0);
   noStroke();
-  arc(width - meterRadius - 10, 10 + infoSize * 1.5 * 2 + meterRadius, meterRadius * 2, meterRadius * 2, -PI / 2, -PI / 2 - 2 * PI * gameTicksRemaining / gameTicks, PIE);
-
+  if(gameTicksRemaining > gameTicks){
+    //just draw a full circle
+    //ellipse(width - meterRadius - 10, 10 + infoSize * 1.5 * 2 + meterRadius, meterRadius * 2, meterRadius * 2);
+  }else{
+    arc(width - meterRadius - 10, 10 + infoSize * 1.5 * 2 + meterRadius, meterRadius * 2, meterRadius * 2, -PI / 2, -PI / 2 - 2 * PI * gameTicksRemaining / gameTicks, PIE);
+  }
 
 }
 
