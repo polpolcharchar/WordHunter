@@ -19,6 +19,7 @@ let wordLetterSize = 40;
 
 let backgroundColor = 20;
 let infoColor = [255, 255, 255];
+let infoMargin;
 let meterRadius;
 
 let infoSize;
@@ -68,6 +69,7 @@ function setup() {
   len = floor(min(width, height) / gridSize) - 1;
   infoSize = height / 20;
   meterRadius = height / 10;
+  infoMargin = pixelDensity() == 2 ? 40 : 80;
 
   p = new ParticleHandler();
 
@@ -160,9 +162,9 @@ function drawEnd(){
   textSize(infoSize);
   fill(infoColor);
   let t = "Words found: " + foundWords.length + "/" + existingWords.length;
-  text(t, width - textWidth(t) - 10, 90);
+  text(t, width - textWidth(t) - 10, 10 + 10 + infoSize * 1.5 * 2);
   t = "Score: " + (score * 100 / 100);
-  text(t, width - textWidth(t) - 10, 130);
+  text(t, width - textWidth(t) - 10, 10 + 10 + infoSize * 1.5 * 3);
 
 }
 
@@ -214,10 +216,10 @@ function drawTicksRemainingMeter(){
   //it will empty clockwise, starting from the top
   fill(infoColor);
   stroke(0);
-  ellipse(width - meterRadius - 10, 60 + infoSize + meterRadius, meterRadius * 2, meterRadius * 2);
+  ellipse(width - meterRadius - 10, 10 + infoSize * 1.5 * 2 + meterRadius, meterRadius * 2, meterRadius * 2);
   fill(0);
   noStroke();
-  arc(width - meterRadius - 10, 60 + infoSize + meterRadius, meterRadius * 2, meterRadius * 2, -PI / 2, -PI / 2 - 2 * PI * gameTicksRemaining / gameTicks, PIE);
+  arc(width - meterRadius - 10, 10 + infoSize * 1.5 * 2 + meterRadius, meterRadius * 2, meterRadius * 2, -PI / 2, -PI / 2 - 2 * PI * gameTicksRemaining / gameTicks, PIE);
 
 
 }
@@ -255,7 +257,7 @@ function drawWord(word){
   textSize(infoSize);
   // text(word, (width - len * gridSize) / 2 + len * gridSize - textWidth(word), (height - len * gridSize) / 2 - 10);
   let t = "Word: " + word;
-  text(t, width - textWidth(t) - 10, 50);
+  text(t, width - textWidth(t) - 10, 10 + infoSize * 1.5);
 }
 
 function drawLetters(){
