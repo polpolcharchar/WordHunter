@@ -1,43 +1,42 @@
-let wordList = [];
+let wordList;
 
-let existingWords = [];
-let existingPaths = [];
+let existingWords;
+let existingPaths;
 
-let foundWords = [];
-let foundScores = [];
-let foundTicks = [];
+let foundWords;
+let foundScores;
+let foundTicks;
 
-let cells = [];
+let cells;
 let len;
 
-let gridSize = 60;
-let selectRadius = gridSize / 2 - 4;
-let letterSize = gridSize / 2;
-let gridMargin = 4;
-let showFoundTicks = 200;
-let wordLetterSize = 40;
+const gridSize = 60;
+const selectRadius = gridSize / 2;
+const letterSize = gridSize / 2;
+const gridMargin = 4;
+const showFoundTicks = 200;
 
-let backgroundColor = 20;
-let infoColor = [255, 255, 255];
+const backgroundColor = 20;
+const infoColor = [255, 255, 255];
 let infoMargin;
 let meterRadius;
 
 let infoSize;
 
-let currentWord = "";
-let currentPath = [];
+let currentWord;
+let currentPath;
 
-let weights = [8.12, 1.49, 2.71, 4.32, 12.02, 2.3, 2.03, 5.92, 7.31, 0.1, 0.69, 3.98, 2.61, 6.95, 7.68, 1.82, 0.11, 6.02, 6.28, 9.1, 2.88, 1.11, 2.09, 0.17, 2.11, 0.07];
-let weightSum = 0;
-let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const weights = [8.12, 1.49, 2.71, 4.32, 12.02, 2.3, 2.03, 5.92, 7.31, 0.1, 0.69, 3.98, 2.61, 6.95, 7.68, 1.82, 0.11, 6.02, 6.28, 9.1, 2.88, 1.11, 2.09, 0.17, 2.11, 0.07];
+let weightSum;
+const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 let score = 0;
 
-let gameState = "menu";
+let gameState;
 const gameTicks = 3_000;
-let gameTicksRemaining = gameTicks;
-let pathIndex = 0;
-let buttons = [];
+let gameTicksRemaining;
+let pathIndex;
+let buttons;
 
 let p;
 
@@ -46,10 +45,12 @@ let p;
 function preload(){
 
   //calculate the sum of the weights
+  weightSum = 0;
   for (let i = 0; i < weights.length; i++) {
     weightSum += weights[i];
   }
 
+  wordList = [];
   //load words from file "words.txt"
   loadStrings("words.txt", function(data) {
     let temp = data;
@@ -66,18 +67,38 @@ function preload(){
 function setup() {
   createCanvas(windowWidth, windowHeight);
 
-  len = floor(min(width, height) / gridSize) - 1;
-  infoSize = height / 20;
-  meterRadius = height / 10;
-  infoMargin = pixelDensity() == 2 ? 40 : 80;
-
-  p = new ParticleHandler();
+  initVariables();
 
   buttons.push(new Button("Play", width / 2 - 100, height / 2 - 50, 200, 100, function() {
     gameState = "game";
 
     startRandomGame();
   }));
+}
+
+function initVariables(){
+  cells = [];
+  existingWords = [];
+  existingPaths = [];
+  foundWords = [];
+  foundScores = [];
+  foundTicks = [];
+  score = 0;
+  gameTicksRemaining = gameTicks;
+
+  gameState = "menu";
+  pathIndex = 0;
+  buttons = [];
+
+  currentWord = "";
+  currentPath = [];
+
+  len = floor(min(width, height) / gridSize) - 1;
+  infoSize = height / 20;
+  meterRadius = height / 10;
+  infoMargin = pixelDensity() == 2 ? 40 : 80;
+
+  p = new ParticleHandler();
 }
 
 function draw() {
@@ -325,10 +346,10 @@ function drawWordPairs(){
     fill(map(foundTicks[i], 1500, 2000, 0, backgroundColor), map(foundTicks[i], 1500, 2000, 62, backgroundColor), map(foundTicks[i], 1500, 2000, 232, backgroundColor));
 
 
-    textSize(wordLetterSize);
+    textSize(infoSize);
     let leftText = foundWords[i] + "  +";
-    text(leftText, 10, 10 + (i + 1) * wordLetterSize);
-    text(round(foundScores[i] * 100) / 100, 10 + textWidth(leftText), 10 + (i + 1) * wordLetterSize);
+    text(leftText, 10, 10 + (i + 1) * infoSize);
+    text(round(foundScores[i] * 100) / 100, 10 + textWidth(leftText), 10 + (i + 1) * infoSize);
     foundTicks[i]++;
   }
 }
@@ -401,6 +422,13 @@ function keyPressed(){
   if(key == "z"){
     gameTicksRemaining = 0;
   }
+}
+
+//when the window is resized, resize the canvas
+function windowResized() {
+  buttons = [];
+  setup();
+  
 }
 
 //cell methods
