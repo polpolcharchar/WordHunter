@@ -60,8 +60,13 @@ function preload(){
 
 function setup() {
   console.log(displayDensity());
+  if(displayDensity() == 1){
+    createCanvas(windowWidth / 2, windowHeight / 2);
+    pixelDensity(2);
+  }else{
+    createCanvas(windowWidth, windowHeight);
+  }
 
-  createCanvas(windowWidth, windowHeight);
 
   len = floor(min(width, height) / gridSize) - 1;
 
