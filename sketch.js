@@ -18,6 +18,7 @@ let showFoundTicks = 200;
 let wordLetterSize = 40;
 
 let backgroundColor = 20;
+let infoColor = [255, 255, 255];
 
 let currentWord = "";
 let currentPath = [];
@@ -29,7 +30,7 @@ let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 let score = 0;
 
 let gameState = "menu";
-const gameTicks = 3_00;
+const gameTicks = 3_000;
 let gameTicksRemaining = gameTicks;
 let pathIndex = 0;
 let buttons = [];
@@ -59,14 +60,7 @@ function preload(){
 }
 
 function setup() {
-  console.log(displayDensity() + " " + pixelDensity());
-  if(displayDensity() == 1){
-    pixelDensity(0.5);
-    createCanvas(windowWidth, windowHeight);
-  }else{
-    createCanvas(windowWidth, windowHeight);
-  }
-
+  createCanvas(windowWidth, windowHeight);
 
   len = floor(min(width, height) / gridSize) - 1;
 
@@ -103,7 +97,7 @@ function draw() {
   } else if (gameState == "game") {
     drawGame();
     gameTicksRemaining--;
-    if (gameTicksRemaining == 0) {
+    if (gameTicksRemaining <= 0) {
       gameState = "end";
       gameTicksRemaining = -1;
       currentPath = existingPaths[pathIndex];
@@ -159,7 +153,7 @@ function drawEnd(){
   //draw on the right side of the screen the words that were found and the percentage of the total words found
   textAlign(LEFT, TOP);
   textSize(30);
-  fill(0, 0, 255);
+  fill(infoColor);
   text("Words found: " + foundWords.length + "/" + existingWords.length, width / 2 + 300, 50);
   text("Score: " + (score * 100 / 100), width / 2 + 300, 100);
 
@@ -212,7 +206,7 @@ function drawTicksRemainingMeter(){
   fill(0);
   noStroke();
   rect(width - 200 - 100, 10, 200, 20);
-  fill(0, 0, 255);
+  fill(infoColor);
   rect(width - 200 - 100, 10, 200 * gameTicksRemaining / gameTicks, 20);
   
 }
@@ -236,7 +230,7 @@ function drawCurrentPath(){
 function drawScore(){
   textAlign(LEFT);
   //draw the score rounded to 2 decimal places above the grid
-  fill(0, 0, 255);
+  fill(infoColor);
   textSize(letterSize);
   text("Score: " + round(score * 100) / 100, (width - len * gridSize) / 2, (height - len * gridSize) / 2 - 15);
 }
@@ -244,7 +238,7 @@ function drawScore(){
 function drawWord(word){
   textAlign(LEFT, CENTER);
   //draw the word above the grid, on the top right
-  fill(0, 0, 255);
+  fill(infoColor);
   textSize(letterSize);
   text(word, (width - len * gridSize) / 2 + len * gridSize - textWidth(word), (height - len * gridSize) / 2 - 10);
 }
@@ -380,6 +374,11 @@ function keyPressed(){
       currentPath.pop();
     }
   }
+
+  //if the z key is pressed, set gameTicks to 0
+  if(key == "z"){
+    gameTicksRemaining = 0;
+  }
 }
 
 //cell methods
@@ -412,7 +411,7 @@ class Button {
   draw(){
     noStroke();
     if(this.isMouseOver()){
-      fill(0, 30, 255);
+      fill(240);
     }else{
       fill(255);
     }
