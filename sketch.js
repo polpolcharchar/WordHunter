@@ -61,7 +61,7 @@ function preload(){
 function setup() {
   console.log(displayDensity());
   if(displayDensity() == 1){
-    createCanvas(windowWidth / 2, windowHeight / 2);
+    createCanvas(windowWidth, windowHeight);
     pixelDensity(2);
   }else{
     createCanvas(windowWidth, windowHeight);
