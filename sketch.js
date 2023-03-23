@@ -184,8 +184,8 @@ function drawEnd(){
   fill(infoColor);
   let t = "Words found: " + foundWords.length + "/" + existingWords.length;
   text(t, width - textWidth(t) - 10, 10 + 10 + infoSize * 1.5 * 2);
-  t = "Score: " + (score * 100 / 100);
-  text(t, width - textWidth(t) - 10, 10 + 10 + infoSize * 1.5 * 3);
+  // t = "Score: " + (score * 100 / 100);
+  // text(t, width - textWidth(t) - 10, 10 + 10 + infoSize * 1.5 * 3);
 
 }
 
