@@ -159,8 +159,10 @@ function drawEnd(){
   textAlign(LEFT, TOP);
   textSize(infoSize);
   fill(infoColor);
-  text("Words found: " + foundWords.length + "/" + existingWords.length, width / 2 + 300, 50);
-  text("Score: " + (score * 100 / 100), width / 2 + 300, 100);
+  let t = "Words found: " + foundWords.length + "/" + existingWords.length;
+  text(t, width - textWidth(t) - 10, 90);
+  t = "Score: " + (score * 100 / 100);
+  text(t, width - textWidth(t) - 10, 130);
 
 }
 
