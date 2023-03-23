@@ -210,6 +210,7 @@ function checkMousePosition(){
   }
 }
 
+//fix
 function drawTicksRemainingMeter(){
 
   //draw a circular meter that shows how much time is left
