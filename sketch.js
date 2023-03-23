@@ -11,7 +11,7 @@ let cells = [];
 let len;
 
 let gridSize = 60;
-let selectRadius = gridSize / 2 - 5;
+let selectRadius = gridSize / 2 - 4;
 let letterSize = gridSize / 2;
 let gridMargin = 4;
 let showFoundTicks = 200;
@@ -19,6 +19,9 @@ let wordLetterSize = 40;
 
 let backgroundColor = 20;
 let infoColor = [255, 255, 255];
+let meterRadius;
+
+let infoSize;
 
 let currentWord = "";
 let currentPath = [];
@@ -63,6 +66,8 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
 
   len = floor(min(width, height) / gridSize) - 1;
+  infoSize = height / 20;
+  meterRadius = height / 10;
 
   p = new ParticleHandler();
 
@@ -152,7 +157,7 @@ function drawEnd(){
 
   //draw on the right side of the screen the words that were found and the percentage of the total words found
   textAlign(LEFT, TOP);
-  textSize(30);
+  textSize(infoSize);
   fill(infoColor);
   text("Words found: " + foundWords.length + "/" + existingWords.length, width / 2 + 300, 50);
   text("Score: " + (score * 100 / 100), width / 2 + 300, 100);
@@ -203,12 +208,29 @@ function checkMousePosition(){
 
 function drawTicksRemainingMeter(){
   //draw a meter that shows how much time is left
+  // fill(0);
+  // noStroke();
+  // rect(width - 200 - 100, 10, 200, 20);
+  // fill(infoColor);
+  // rect(width - 200 - 100, 10, 200 * gameTicksRemaining / gameTicks, 20);
+  
+  //draw a circular meter that shows how much time is left
+  // fill(0);
+  // noStroke();
+  // ellipse(width - 100, 30, 60, 60);
+  // fill(infoColor);
+  // arc(width - 100, 30, 60, 60, 0, 2 * PI * gameTicksRemaining / gameTicks);
+
+  //draw a circular meter that shows how much time is left
+  //it will empty clockwise, starting from the top
+  fill(infoColor);
+  stroke(0);
+  ellipse(width - meterRadius - 10, meterRadius + 10, meterRadius * 2, meterRadius * 2);
   fill(0);
   noStroke();
-  rect(width - 200 - 100, 10, 200, 20);
-  fill(infoColor);
-  rect(width - 200 - 100, 10, 200 * gameTicksRemaining / gameTicks, 20);
-  
+  arc(width - meterRadius - 10, meterRadius + 10, meterRadius * 2, meterRadius * 2, -PI / 2, -PI / 2 - 2 * PI * gameTicksRemaining / gameTicks, PIE);
+
+
 }
 
 function drawCurrentPath(){
@@ -231,7 +253,7 @@ function drawScore(){
   textAlign(LEFT);
   //draw the score rounded to 2 decimal places above the grid
   fill(infoColor);
-  textSize(letterSize);
+  textSize(infoSize);
   text("Score: " + round(score * 100) / 100, (width - len * gridSize) / 2, (height - len * gridSize) / 2 - 15);
 }
 
@@ -239,7 +261,7 @@ function drawWord(word){
   textAlign(LEFT, CENTER);
   //draw the word above the grid, on the top right
   fill(infoColor);
-  textSize(letterSize);
+  textSize(infoSize);
   text(word, (width - len * gridSize) / 2 + len * gridSize - textWidth(word), (height - len * gridSize) / 2 - 10);
 }
 
