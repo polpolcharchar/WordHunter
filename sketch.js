@@ -10,7 +10,7 @@ let foundTicks;
 let cells;
 let len;
 
-const gridSize = 60;
+const gridSize = 40;
 const selectRadius = gridSize / 2;
 const letterSize = gridSize / 2;
 const gridMargin = 4;
@@ -33,7 +33,7 @@ const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 let score = 0;
 
 let gameState;
-const gameTicks = 3_000;
+const gameTicks = 3_00000;
 let gameTicksRemaining;
 let pathIndex;
 let buttons;
