@@ -10,9 +10,9 @@ let foundTicks;
 let cells;
 let len;
 
-const gridSize = 40;
+const gridSize = 50;
 const selectRadius = gridSize / 2;
-const letterSize = gridSize / 2;
+const letterSize = gridSize * 0.6;
 const gridMargin = 4;
 const showFoundTicks = 200;
 
@@ -93,7 +93,7 @@ function initVariables(){
   currentWord = "";
   currentPath = [];
 
-  len = floor(min(width, height) / gridSize) - 1;
+  len = floor(min(width, height) / gridSize);// - 1;
   infoSize = height / 20;
   meterRadius = height / 10;
   infoMargin = pixelDensity() == 2 ? 40 : 80;
