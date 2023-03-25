@@ -39,6 +39,8 @@ let buttons;
 
 let p;
 
+let encodedString;
+
 
 //load the words into the array
 function preload(){
@@ -64,14 +66,37 @@ function preload(){
 }
 
 function setup() {
+
   createCanvas(windowWidth, windowHeight);
 
   initVariables();
 
-  buttons.push(new Button("Play", width / 2 - 100, height / 2 - 50, 200, 100, function() {
+  buttons.push(new Button("Play", width / 2 - 100, height / 2 - 50, 200, 100, 50, function() {
     gameState = "game";
 
     startRandomGame();
+  }));
+  
+  //create a button in the bottom right that says Generate Code
+  buttons.push(new Button("Generate Code", width - 205, height - 55, 200, 50, 20, function() {
+    let c = generateCode();
+    this.enabled = false;
+
+    navigator.clipboard.writeText(c);
+    this.text = "Copied to clipboard";
+
+    encodedString = c;
+    
+  }));
+
+  //create a button in the bottom right that says load code
+  buttons.push(new Button("Load Code", width - 205, height - 110, 200, 50, 20, function() {
+    let x = navigator.clipboard.readText();
+    
+    //x is a promise, so we have to wait for it to resolve
+    x.then(function(result) {
+      encodedString = result;
+    });
   }));
 }
 
@@ -106,15 +131,17 @@ function initVariables(){
 }
 
 function draw() {
+
   if (gameState == "menu") {
     background(backgroundColor);
+
 
     for (let i = 0; i < buttons.length; i++) {
       buttons[i].draw();
 
       //if mouse is pressed over the button, call the button's function
       if (mouseIsPressed) {
-        if(buttons[i].isMouseOver()){
+        if(buttons[i].enabled && buttons[i].isMouseOver()){
           buttons[i].callback();
         }
       }
@@ -253,6 +280,24 @@ function checkMousePosition(){
       }
     }
   }
+}
+
+function generateCode(){
+  //create a len x len string of random letters
+  let code = "";
+  for (let i = 0; i < len; i++) {
+    for (let j = 0; j < len; j++) {
+      code += letters[floor(random(letters.length))];
+    }
+  }
+  return btoa(code);
+}
+
+function resetCodeButton(){
+  buttons[1].text = "Generate Code";
+  buttons[1].enabled = true;
+  buttons[1].textSize = 20;
+  encodedString = "";
 }
 
 //fix
@@ -454,12 +499,13 @@ function keyPressed(){
   }else if(gameState == "menu"){
     if(key == '=' || key == '+'){
       len++;
+      resetCodeButton();
     }else if(key == '-' || key == '_'){
       len--;
       if(len < 3)len = 3;
+      resetCodeButton();
     }
   }
-
 }
 
 //when the window is resized, resize the canvas
@@ -487,13 +533,15 @@ class Cell {
 }
 
 class Button {
-  constructor(text, x, y, w, h, callback){
+  constructor(text, x, y, w, h, textSize, callback){
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
     this.text = text;
     this.callback = callback;
+    this.enabled = true;
+    this.textSize = textSize;
   }
 
   draw(){
@@ -505,7 +553,7 @@ class Button {
     }
     rect(this.x, this.y, this.w, this.h, 12);
     fill(0);
-    textSize(50);
+    textSize(this.textSize);
     textAlign(LEFT, CENTER);
     text(this.text, this.x + this.w / 2 - textWidth(this.text) / 2, this.y + this.h / 2 + 10 / 2);
   }
@@ -516,10 +564,6 @@ class Button {
 }
 
 function startRandomGame(){
-
-  gridSize = min(width * 0.9, height * 0.9) / len;
-  selectRadius = gridSize / 2;
-  letterSize = gridSize * 0.6;
 
   //reset the score
   score = 0;
@@ -535,13 +579,32 @@ function startRandomGame(){
 
   //create a lenxlen grid of letters
   cells = [];
-  for (let i = 0; i < len; i++) {
-    cells.push([]);
-    for (let j = 0; j < len; j++) {
-      // let letter = String.fromCharCode(floor(random(65, 91)));
-      cells[i].push(new Cell(getWeightedRandomLetter()));
+
+  //if encodedString is not empty, use it
+  if(encodedString != "" && encodedString != undefined){
+    // console.log("Using encoded string: " + encodedString);
+    let encodedLetters = atob(encodedString).split("");
+    len = Math.sqrt(encodedLetters.length);
+    for (let i = 0; i < len; i++) {
+      cells.push([]);
+      for (let j = 0; j < len; j++) {
+        cells[i].push(new Cell(encodedLetters[i * len + j]));
+      }
+    }
+  }else{
+    //otherwise, generate a random grid
+    for (let i = 0; i < len; i++) {
+      cells.push([]);
+      for (let j = 0; j < len; j++) {
+        // let letter = String.fromCharCode(floor(random(65, 91)));
+        cells[i].push(new Cell(getWeightedRandomLetter()));
+      }
     }
   }
+
+  gridSize = min(width * 0.9, height * 0.9) / len;
+  selectRadius = gridSize / 2;
+  letterSize = gridSize * 0.6;
 
   let letters = [];
   for (let i = 0; i < cells.length; i++) {
