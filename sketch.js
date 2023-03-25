@@ -129,6 +129,8 @@ function draw() {
     //draw text that says "Length: " and the current length of the grid
     textSize(50);
     text("Length: " + len, width / 2, height / 2 - 100);
+    textSize(30);
+    text("-/+", width / 2, height / 2 - 50);
 
 
   } else if (gameState == "game") {
@@ -346,7 +348,7 @@ function drawCells(){
         }
       }//otherwise, fill the cell with white
       else if (i == mouseCellX && j == mouseCellY) {
-        fill(sin(frameCount / 15) * 100 + 150, sin(frameCount / 15) * 100 + 150, 255);
+        fill(sin(frameCount / 15) * 20 + 235, sin(frameCount / 15) * 20 + 235, sin(frameCount / 15) * 20 + 235);
       }else{
         fill(255);
       }
