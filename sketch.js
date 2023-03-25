@@ -33,7 +33,7 @@ const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 let score = 0;
 
 let gameState;
-const gameTicks = 3_000;
+const gameTicks = 3_00;
 let gameTicksRemaining;
 let pathIndex;
 let buttons;
