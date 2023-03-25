@@ -120,11 +120,11 @@ function draw() {
       }
     }
 
-    //draw a title that says "WordHunt 2" in the center of the screen
+
     textAlign(CENTER, CENTER);
     textSize(100);
     fill(255);
-    text("WordHunt 2", width / 2, height / 2 - 200);
+    text("WordHunter", width / 2, height / 2 - 200);
 
     //draw text that says "Length: " and the current length of the grid
     textSize(50);
