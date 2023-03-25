@@ -128,9 +128,7 @@ function draw() {
 
     //draw text that says "Length: " and the current length of the grid
     textSize(50);
-    text("Length: " + len, width / 2, height / 2 - 100);
-    textSize(30);
-    text("-/+", width / 2, height / 2 - 50);
+    text("Length: " + len + " (-/+)", width / 2, height / 2 - 100);
 
 
   } else if (gameState == "game") {
@@ -139,7 +137,11 @@ function draw() {
     if (gameTicksRemaining <= 0) {
       gameState = "end";
       gameTicksRemaining = -1;
-      currentPath = existingPaths[pathIndex];
+
+      for (let i = 0; i < existingPaths[pathIndex].length; i++) {
+        currentPath.push(existingPaths[pathIndex][i].slice());
+      }
+
       setAllCellsUnselected();
     }
   }else if(gameState == "end"){
@@ -395,7 +397,6 @@ function mouseReleased(){
     foundTicks.unshift(0);
 
 
-    //c0nsole.log(currentWord);
 
     gameTicksRemaining += wordScore * 100;
 
@@ -423,30 +424,37 @@ function mouseReleased(){
 
 function keyPressed(){
   if(gameState == "end"){
+
     //when the left/right arrow keys are pressed, increase/decrease pathindex
     if(keyCode == LEFT_ARROW){
       pathIndex--;
       if(pathIndex < 0)pathIndex = existingPaths.length - 1;
     }else if(keyCode == RIGHT_ARROW){
       pathIndex++;
-      if(pathIndex >= existingPaths.length)pathIndex = 0;
+      if(pathIndex >= existingPaths.length){
+        pathIndex = 0;
+      }
     }
+
 
     while(currentPath.length < existingPaths[pathIndex].length){
       currentPath.push([currentPath[0][0], currentPath[0][1]]);
     }
+
+
     while(currentPath.length > existingPaths[pathIndex].length){
       currentPath.pop();
     }
+
   }else if(gameState == "game"){
     //if the z key is pressed, set gameTicks to 0
     if(key == "z"){
       gameTicksRemaining = 0;
     }
   }else if(gameState == "menu"){
-    if(key == '='){
+    if(key == '=' || key == '+'){
       len++;
-    }else if(key == '-'){
+    }else if(key == '-' || key == '_'){
       len--;
       if(len < 3)len = 3;
     }
