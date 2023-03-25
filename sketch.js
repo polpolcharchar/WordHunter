@@ -10,9 +10,9 @@ let foundTicks;
 let cells;
 let len;
 
-const gridSize = 60;
+const gridSize = 50;
 const selectRadius = gridSize / 2;
-const letterSize = gridSize / 2;
+const letterSize = gridSize * 0.6;
 const gridMargin = 4;
 const showFoundTicks = 200;
 
@@ -93,7 +93,7 @@ function initVariables(){
   currentWord = "";
   currentPath = [];
 
-  len = floor(min(width, height) / gridSize) - 1;
+  len = floor(min(width, height) / gridSize);// - 1;
   infoSize = height / 20;
   meterRadius = height / 10;
   infoMargin = pixelDensity() == 2 ? 40 : 80;
@@ -220,6 +220,17 @@ function checkMousePosition(){
     let yIndex = floor((mouseY - (height - len * gridSize) / 2) / gridSize);
 
     if (xIndex >= 0 && xIndex < cells.length && yIndex >= 0 && yIndex < cells[xIndex].length) {
+
+      //if the next index is not adjacent to the current index, deselect the current index
+      if (currentPath.length > 0) {
+        let last = currentPath[currentPath.length - 1];
+        if (abs(xIndex - last[0]) > 1 || abs(yIndex - last[1]) > 1) {
+          setAllCellsUnselected();
+          currentWord = "";
+          currentPath = [];
+        }
+      }
+
       if (dist(mouseX, mouseY, xIndex * gridSize + gridSize / 2 + (width - len * gridSize) / 2, yIndex * gridSize + gridSize / 2 + (height - len * gridSize) / 2) < selectRadius) {
         if (cells[xIndex][yIndex].selected == false) {
           cells[xIndex][yIndex].selected = true;
