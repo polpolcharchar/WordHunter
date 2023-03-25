@@ -37,7 +37,8 @@ let gameTicksRemaining;
 let pathIndex;
 let buttons;
 
-let p;
+let particleHandler;
+let particlesEnabled = false;
 
 let encodedString;
 
@@ -127,57 +128,71 @@ function initVariables(){
   meterRadius = height / 10;
   infoMargin = pixelDensity() == 2 ? 40 : 80;
 
-  p = new ParticleHandler();
+  particleHandler = new ParticleHandler();
 }
 
 function draw() {
 
   if (gameState == "menu") {
-    background(backgroundColor);
-
-
-    for (let i = 0; i < buttons.length; i++) {
-      buttons[i].draw();
-
-      //if mouse is pressed over the button, call the button's function
-      if (mouseIsPressed) {
-        if(buttons[i].enabled && buttons[i].isMouseOver()){
-          buttons[i].callback();
-        }
-      }
-    }
-
-
-    textAlign(CENTER, CENTER);
-    textSize(100);
-    fill(255);
-    text("WordHunter", width / 2, height / 2 - 200);
-
-    //draw text that says "Length: " and the current length of the grid
-    textSize(50);
-    text("Length: " + len + " (-/+)", width / 2, height / 2 - 100);
-
-
+    drawMenu();
   } else if (gameState == "game") {
     drawGame();
+
+    if(particlesEnabled){
+      particleHandler.update();
+      particleHandler.draw();
+    }
+
+    //check game time remaining
     gameTicksRemaining--;
     if (gameTicksRemaining <= 0) {
       gameState = "end";
       gameTicksRemaining = -1;
 
+      //initialize the first path
       for (let i = 0; i < existingPaths[pathIndex].length; i++) {
         currentPath.push(existingPaths[pathIndex][i].slice());
       }
 
+      //unselect all cells
       setAllCellsUnselected();
     }
   }else if(gameState == "end"){
     drawEnd();
   }
 
-  p.update();
-  p.draw();
+}
 
+function drawMenu(){
+  background(backgroundColor);
+
+
+  for (let i = 0; i < buttons.length; i++) {
+    buttons[i].draw();
+
+    //if mouse is pressed over the button, call the button's function
+    if (mouseIsPressed) {
+      if(buttons[i].enabled && buttons[i].isMouseOver()){
+        buttons[i].callback();
+      }
+    }
+  }
+
+
+  textAlign(CENTER, CENTER);
+  textSize(100);
+  fill(255);
+  text("WordHunter", width / 2, height / 2 - 200);
+
+  //draw text that says "Length: " and the current length of the grid
+  textSize(50);
+  text("Length: " + len + " (-/+)", width / 2, height / 2 - 100);
+
+  //in the bottom left, draw text that says "Toggle Particles: P", and draw a circle that is either white or black depending on whether particles are enabled
+  textSize(20);
+  textAlign(LEFT, BOTTOM);
+  fill(particlesEnabled ? 255 : 0);
+  text("Toggle Particles: P", 5, height - 5);
 }
 
 function drawEnd(){
@@ -446,13 +461,15 @@ function mouseReleased(){
     gameTicksRemaining += wordScore * 100;
 
     //add particles along the path
-    for (let i = 0; i < currentPath.length; i++) {
-      for(let n = 0; n < 80 / currentPath.length; n++){
-        p.addParticle(currentPath[i][0] * gridSize + gridSize / 2 + (width - len * gridSize) / 2
-        , currentPath[i][1] * gridSize + gridSize / 2 + (height - len * gridSize) / 2
-        , 10
-        , [Math.random() * 15, Math.random() * 80, 200 + Math.random() * 50]
-        , 100);
+    if(particlesEnabled){
+      for (let i = 0; i < currentPath.length; i++) {
+        for(let n = 0; n < 80 / currentPath.length; n++){
+          particleHandler.addParticle(currentPath[i][0] * gridSize + gridSize / 2 + (width - len * gridSize) / 2
+          , currentPath[i][1] * gridSize + gridSize / 2 + (height - len * gridSize) / 2
+          , 10
+          , [Math.random() * 15, Math.random() * 80, 200 + Math.random() * 50]
+          , 100);
+        }
       }
     }
 
@@ -504,6 +521,8 @@ function keyPressed(){
       len--;
       if(len < 3)len = 3;
       resetCodeButton();
+    }else if(key == 'p'){
+      particlesEnabled = !particlesEnabled;
     }
   }
 }
