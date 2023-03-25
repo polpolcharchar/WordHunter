@@ -8,13 +8,12 @@ let foundScores;
 let foundTicks;
 
 let cells;
-let len;
+let len = 5;//starts off changable in the menu
 
-const gridSize = 50;
-const selectRadius = gridSize / 2;
-const letterSize = gridSize * 0.6;
-const gridMargin = 4;
-const showFoundTicks = 200;
+let gridSize;// = 50;
+let selectRadius;// = gridSize / 2;
+let letterSize;// = gridSize * 0.6;
+const gridMargin = 2;
 
 const backgroundColor = 20;
 const infoColor = [255, 255, 255];
@@ -33,7 +32,7 @@ const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 let score = 0;
 
 let gameState;
-const gameTicks = 3_00;
+const gameTicks = 3_000;
 let gameTicksRemaining;
 let pathIndex;
 let buttons;
@@ -93,7 +92,12 @@ function initVariables(){
   currentWord = "";
   currentPath = [];
 
-  len = floor(min(width, height) / gridSize);// - 1;
+
+
+  gridSize = min(width * 0.9, height * 0.9) / len;
+  selectRadius = gridSize / 2;
+  letterSize = gridSize * 0.6;
+
   infoSize = height / 20;
   meterRadius = height / 10;
   infoMargin = pixelDensity() == 2 ? 40 : 80;
@@ -121,6 +125,11 @@ function draw() {
     textSize(100);
     fill(255);
     text("WordHunt 2", width / 2, height / 2 - 200);
+
+    //draw text that says "Length: " and the current length of the grid
+    textSize(50);
+    text("Length: " + len, width / 2, height / 2 - 100);
+
 
   } else if (gameState == "game") {
     drawGame();
@@ -342,7 +351,7 @@ function drawCells(){
         fill(255);
       }
       //draw the cell
-      rect(i * gridSize + (width - len * gridSize) / 2 + gridMargin / 2, j * gridSize + (height - len * gridSize) / 2 + gridMargin / 2, gridSize - gridMargin, gridSize - gridMargin, 12);
+      rect(i * gridSize + (width - len * gridSize) / 2 + gridMargin / 2, j * gridSize + (height - len * gridSize) / 2 + gridMargin / 2, gridSize - gridMargin, gridSize - gridMargin, 5);
       
       
     }
@@ -427,12 +436,20 @@ function keyPressed(){
     while(currentPath.length > existingPaths[pathIndex].length){
       currentPath.pop();
     }
+  }else if(gameState == "game"){
+    //if the z key is pressed, set gameTicks to 0
+    if(key == "z"){
+      gameTicksRemaining = 0;
+    }
+  }else if(gameState == "menu"){
+    if(key == '='){
+      len++;
+    }else if(key == '-'){
+      len--;
+      if(len < 3)len = 3;
+    }
   }
 
-  //if the z key is pressed, set gameTicks to 0
-  if(key == "z"){
-    gameTicksRemaining = 0;
-  }
 }
 
 //when the window is resized, resize the canvas
@@ -489,6 +506,10 @@ class Button {
 }
 
 function startRandomGame(){
+
+  gridSize = min(width * 0.9, height * 0.9) / len;
+  selectRadius = gridSize / 2;
+  letterSize = gridSize * 0.6;
 
   //reset the score
   score = 0;
