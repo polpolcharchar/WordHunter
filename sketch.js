@@ -32,7 +32,7 @@ const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 let score = 0;
 
 let gameState;
-const gameTicks = 3_00000;
+const gameTicks = 3_000;
 let gameTicksRemaining;
 let pathIndex;
 let buttons;
@@ -56,7 +56,7 @@ function preload(){
 
     //for all the words in temp, add them to words
     for (let i = 0; i < temp.length; i++) {
-      if(temp[i].length >= 4){
+      if(temp[i].length >= 3){
         wordList.push(temp[i]);
       }
     }
