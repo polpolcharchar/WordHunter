@@ -181,8 +181,8 @@ function drawEnd(){
 
   //for each point in currentPath, move it slightly closer to the point at the same index in existingPaths[pathIndex]
   for (let i = 0; i < currentPath.length; i++) {
-    currentPath[i][0] += (existingPaths[pathIndex][i][0] - currentPath[i][0]) / 10;
-    currentPath[i][1] += (existingPaths[pathIndex][i][1] - currentPath[i][1]) / 10;
+    //currentPath[i][0] += (existingPaths[pathIndex][i][0] - currentPath[i][0]) / 10;
+    //currentPath[i][1] += (existingPaths[pathIndex][i][1] - currentPath[i][1]) / 10;
   }
 
   //draw the path at existingPaths[pathIndex] as a curve
