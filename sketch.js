@@ -1,49 +1,56 @@
+//List of words to be used in the game
 let wordList;
 
+//List of words that are in the grid
 let existingWords;
 let existingPaths;
 
+//List of words that have been found
 let foundWords;
 let foundScores;
 let foundTicks;
 
+//Cells, and the default grid size, created in initVariables()
 let cells;
 let len = 5;//starts off changable in the menu
 
-let gridSize;// = 50;
-let selectRadius;// = gridSize / 2;
-let letterSize;// = gridSize * 0.6;
+//Variables that are used to draw the grid. Calculated based off length in initVariables()
+let gridSize;
+let selectRadius;
+let letterSize;
 const gridMargin = 2;
 
+//Variables that are used to draw the info box.
 const backgroundColor = 20;
 const infoColor = [255, 255, 255];
-let infoMargin;
 let meterRadius;
-
 let infoSize;
 
+//Store information about the currently selected tiles
 let currentWord;
 let currentPath;
 
+//Weighted Random Letter Generator. These weights CAN be adjusted, as weightSum is recalculated in preload()
 const weights = [8.12, 1.49, 2.71, 4.32, 12.02, 2.3, 2.03, 5.92, 7.31, 0.1, 0.69, 3.98, 2.61, 6.95, 7.68, 1.82, 0.11, 6.02, 6.28, 9.1, 2.88, 1.11, 2.09, 0.17, 2.11, 0.07];
-let weightSum;
 const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+let weightSum;
 
 let score = 0;
 
+//game state variables
 let gameState;
 const gameTicks = 3_000;
 let gameTicksRemaining;
 let pathIndex;
 let buttons;
 
+//particle variables
 let particleHandler;
 let particlesEnabled = false;
 
+//variables for the code generation
 let encodedString;
 
-
-//load the words into the array
 function preload(){
 
   //calculate the sum of the weights
@@ -101,36 +108,7 @@ function setup() {
   }));
 }
 
-function initVariables(){
-  cells = [];
-  existingWords = [];
-  existingPaths = [];
-  foundWords = [];
-  foundScores = [];
-  foundTicks = [];
-  score = 0;
-  gameTicksRemaining = gameTicks;
-
-  gameState = "menu";
-  pathIndex = 0;
-  buttons = [];
-
-  currentWord = "";
-  currentPath = [];
-
-
-
-  gridSize = min(width * 0.9, height * 0.9) / len;
-  selectRadius = gridSize / 2;
-  letterSize = gridSize * 0.6;
-
-  infoSize = height / 20;
-  meterRadius = height / 10;
-  infoMargin = pixelDensity() == 2 ? 40 : 80;
-
-  particleHandler = new ParticleHandler();
-}
-
+//base draw
 function draw() {
 
   if (gameState == "menu") {
@@ -163,6 +141,7 @@ function draw() {
 
 }
 
+//high level draw funcitons
 function drawMenu(){
   background(backgroundColor);
 
@@ -266,58 +245,102 @@ function drawGame(){
   drawWordPairs();
 }
 
-function checkMousePosition(){
-  //if the mouse is pressed over an unselected cell, select it and add the letter to the word
-  if (mouseIsPressed) {
+//Control Functions
+function startRandomGame(){
 
-    //if the mouse is within a circle of radius selectRadius around the center of the cell, select the cell
-    let xIndex = floor((mouseX - (width - len * gridSize) / 2) / gridSize);
-    let yIndex = floor((mouseY - (height - len * gridSize) / 2) / gridSize);
+  //reset the score
+  score = 0;
 
-    if (xIndex >= 0 && xIndex < cells.length && yIndex >= 0 && yIndex < cells[xIndex].length) {
+  //reset the found words
+  foundWords = [];
+  foundScores = [];
+  foundTicks = [];
 
-      //if the next index is not adjacent to the current index, deselect the current index
-      if (currentPath.length > 0) {
-        let last = currentPath[currentPath.length - 1];
-        if (abs(xIndex - last[0]) > 1 || abs(yIndex - last[1]) > 1) {
-          setAllCellsUnselected();
-          currentWord = "";
-          currentPath = [];
-        }
+  //reset the current word
+  currentWord = "";
+  currentPath = [];
+
+  //create a lenxlen grid of letters
+  cells = [];
+
+  //if encodedString is not empty, use it
+  if(encodedString != "" && encodedString != undefined){
+    // console.log("Using encoded string: " + encodedString);
+    let encodedLetters = atob(encodedString).split("");
+    len = Math.sqrt(encodedLetters.length);
+    for (let i = 0; i < len; i++) {
+      cells.push([]);
+      for (let j = 0; j < len; j++) {
+        cells[i].push(new Cell(encodedLetters[i * len + j]));
       }
-
-      if (dist(mouseX, mouseY, xIndex * gridSize + gridSize / 2 + (width - len * gridSize) / 2, yIndex * gridSize + gridSize / 2 + (height - len * gridSize) / 2) < selectRadius) {
-        if (cells[xIndex][yIndex].selected == false) {
-          cells[xIndex][yIndex].selected = true;
-          currentWord += cells[xIndex][yIndex].letter;
-          currentPath.push([xIndex, yIndex]);
-        }
+    }
+  }else{
+    //otherwise, generate a random grid
+    for (let i = 0; i < len; i++) {
+      cells.push([]);
+      for (let j = 0; j < len; j++) {
+        // let letter = String.fromCharCode(floor(random(65, 91)));
+        cells[i].push(new Cell(getWeightedRandomLetter()));
       }
     }
   }
-}
 
-function generateCode(){
-  //create a len x len string of random letters
-  let code = "";
-  for (let i = 0; i < len; i++) {
-    for (let j = 0; j < len; j++) {
-      code += letters[floor(random(letters.length))];
+  gridSize = min(width * 0.9, height * 0.9) / len;
+  selectRadius = gridSize / 2;
+  letterSize = gridSize * 0.6;
+
+  let letters = [];
+  for (let i = 0; i < cells.length; i++) {
+    letters.push([]);
+    for (let j = 0; j < cells[i].length; j++) {
+      letters[i].push(cells[i][j].letter);
     }
   }
-  return btoa(code);
+  let pairs = generateAllPairs(letters);
+  existingPaths = [];
+  existingWords = [];
+  for (let i = 0; i < pairs.length; i++) {
+    existingWords.push(pairs[i][0]);
+    existingPaths.push(pairs[i][1]);
+  }
+
+  for(let i = 0; i < existingWords.length; i++){
+    //c0nsole.log(existingWords[i]);
+  }
 }
 
-function resetCodeButton(){
-  buttons[1].text = "Generate Code";
-  buttons[1].enabled = true;
-  buttons[1].textSize = 20;
-  encodedString = "";
+function initVariables(){
+  cells = [];
+  existingWords = [];
+  existingPaths = [];
+  foundWords = [];
+  foundScores = [];
+  foundTicks = [];
+  score = 0;
+  gameTicksRemaining = gameTicks;
+
+  gameState = "menu";
+  pathIndex = 0;
+  buttons = [];
+
+  currentWord = "";
+  currentPath = [];
+
+
+
+  gridSize = min(width * 0.9, height * 0.9) / len;
+  selectRadius = gridSize / 2;
+  letterSize = gridSize * 0.6;
+
+  infoSize = height / 20;
+  meterRadius = height / 10;
+
+  particleHandler = new ParticleHandler();
 }
 
-//fix
+//simple draw functions
+//fix me
 function drawTicksRemainingMeter(){
-
   //draw a circular meter that shows how much time is left
   //it will empty clockwise, starting from the top
   fill(infoColor);
@@ -438,6 +461,27 @@ function drawWordPairs(){
   }
 }
 
+//code generation methods
+function generateCode(){
+  //create a len x len string of random letters
+  let code = "";
+  for (let i = 0; i < len; i++) {
+    for (let j = 0; j < len; j++) {
+      code += letters[floor(random(letters.length))];
+    }
+  }
+  //default encoding
+  return btoa(code);
+}
+
+function resetCodeButton(){
+  buttons[1].text = "Generate Code";
+  buttons[1].enabled = true;
+  buttons[1].textSize = 20;
+  encodedString = "";
+}
+
+//input methods
 function mouseReleased(){
   if(gameState == "end"){
     return;
@@ -527,15 +571,44 @@ function keyPressed(){
   }
 }
 
-//when the window is resized, resize the canvas
 function windowResized() {
   buttons = [];
   setup();
   
 }
 
-//cell methods
+function checkMousePosition(){
+  //if the mouse is pressed over an unselected cell, select it and add the letter to the word
+  if (mouseIsPressed) {
 
+    //if the mouse is within a circle of radius selectRadius around the center of the cell, select the cell
+    let xIndex = floor((mouseX - (width - len * gridSize) / 2) / gridSize);
+    let yIndex = floor((mouseY - (height - len * gridSize) / 2) / gridSize);
+
+    if (xIndex >= 0 && xIndex < cells.length && yIndex >= 0 && yIndex < cells[xIndex].length) {
+
+      //if the next index is not adjacent to the current index, deselect the current index
+      if (currentPath.length > 0) {
+        let last = currentPath[currentPath.length - 1];
+        if (abs(xIndex - last[0]) > 1 || abs(yIndex - last[1]) > 1) {
+          setAllCellsUnselected();
+          currentWord = "";
+          currentPath = [];
+        }
+      }
+
+      if (dist(mouseX, mouseY, xIndex * gridSize + gridSize / 2 + (width - len * gridSize) / 2, yIndex * gridSize + gridSize / 2 + (height - len * gridSize) / 2) < selectRadius) {
+        if (cells[xIndex][yIndex].selected == false) {
+          cells[xIndex][yIndex].selected = true;
+          currentWord += cells[xIndex][yIndex].letter;
+          currentPath.push([xIndex, yIndex]);
+        }
+      }
+    }
+  }
+}
+
+//cell methods/classes
 function setAllCellsUnselected(){
   for (let i = 0; i < cells.length; i++) {
     for (let j = 0; j < cells[i].length; j++) {
@@ -551,6 +624,7 @@ class Cell {
   }
 }
 
+//button methods/classes
 class Button {
   constructor(text, x, y, w, h, textSize, callback){
     this.x = x;
@@ -586,71 +660,7 @@ class Button {
   }
 }
 
-function startRandomGame(){
-
-  //reset the score
-  score = 0;
-
-  //reset the found words
-  foundWords = [];
-  foundScores = [];
-  foundTicks = [];
-
-  //reset the current word
-  currentWord = "";
-  currentPath = [];
-
-  //create a lenxlen grid of letters
-  cells = [];
-
-  //if encodedString is not empty, use it
-  if(encodedString != "" && encodedString != undefined){
-    // console.log("Using encoded string: " + encodedString);
-    let encodedLetters = atob(encodedString).split("");
-    len = Math.sqrt(encodedLetters.length);
-    for (let i = 0; i < len; i++) {
-      cells.push([]);
-      for (let j = 0; j < len; j++) {
-        cells[i].push(new Cell(encodedLetters[i * len + j]));
-      }
-    }
-  }else{
-    //otherwise, generate a random grid
-    for (let i = 0; i < len; i++) {
-      cells.push([]);
-      for (let j = 0; j < len; j++) {
-        // let letter = String.fromCharCode(floor(random(65, 91)));
-        cells[i].push(new Cell(getWeightedRandomLetter()));
-      }
-    }
-  }
-
-  gridSize = min(width * 0.9, height * 0.9) / len;
-  selectRadius = gridSize / 2;
-  letterSize = gridSize * 0.6;
-
-  let letters = [];
-  for (let i = 0; i < cells.length; i++) {
-    letters.push([]);
-    for (let j = 0; j < cells[i].length; j++) {
-      letters[i].push(cells[i][j].letter);
-    }
-  }
-  let pairs = generateAllPairs(letters);
-  existingPaths = [];
-  existingWords = [];
-  for (let i = 0; i < pairs.length; i++) {
-    existingWords.push(pairs[i][0]);
-    existingPaths.push(pairs[i][1]);
-  }
-
-  for(let i = 0; i < existingWords.length; i++){
-    //c0nsole.log(existingWords[i]);
-  }
-}
-
 //word methods
-
 function getWordScore(word){
   let score = 0;
   for (let i = 0; i < word.length; i++) {
@@ -680,6 +690,37 @@ function isWord(word){
 
   return false;
 
+}
+
+function getWeightedRandomLetter(){
+  //using the weights variable, generate a random letter
+  //the first index represents the weight of A, the second index represents the weight of B, etc.
+
+  //generate a random number between 0 and the sum of all the weights
+  let r = random(0, weightSum);
+
+  //loop over the weights array
+  for (let i = 0; i < weights.length; i++) {
+    //if the random number is less than the weight at index i
+    if (r < weights[i]) {
+      //return the letter at index i
+      return String.fromCharCode(i + 65);
+    } else {
+      //subtract the weight at index i from the random number
+      r -= weights[i];
+    }
+  }
+
+  return "!";
+}
+
+//Solver Methods/Classes
+function getCopyOfPath(path){
+  let newPath = [];
+  for (let i = 0; i < path.length; i++) {
+    newPath.push([path[i][0], path[i][1]]);
+  }
+  return newPath;
 }
 
 function getEmptySeen(){
@@ -712,7 +753,7 @@ function wordPotential(word){
 
 }
 
-function generateAllWords(letters){
+function /*UNUSED*/generateAllWords(letters){
   let existingWords = [];
 
   //loop over the letters array
@@ -918,38 +959,9 @@ class SearchState{
   }
 }
 
-function getWeightedRandomLetter(){
-  //using the weights variable, generate a random letter
-  //the first index represents the weight of A, the second index represents the weight of B, etc.
 
-  //generate a random number between 0 and the sum of all the weights
-  let r = random(0, weightSum);
-
-  //loop over the weights array
-  for (let i = 0; i < weights.length; i++) {
-    //if the random number is less than the weight at index i
-    if (r < weights[i]) {
-      //return the letter at index i
-      return String.fromCharCode(i + 65);
-    } else {
-      //subtract the weight at index i from the random number
-      r -= weights[i];
-    }
-  }
-
-  return "!";
-}
-
-function getCopyOfPath(path){
-  let newPath = [];
-  for (let i = 0; i < path.length; i++) {
-    newPath.push([path[i][0], path[i][1]]);
-  }
-  return newPath;
-}
 
 //particles
-
 class ParticleHandler{
   constructor(){
     this.particles = [];
