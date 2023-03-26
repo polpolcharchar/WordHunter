@@ -519,6 +519,9 @@ function mouseReleased(){
 
   }else{
     //c0nsole.log(currentWord + " is not a word");
+    gameTicksRemaining -= 200;
+    score -= 2;
+    
   }
 
   //reset the word
