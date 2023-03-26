@@ -566,12 +566,16 @@ class Button {
   draw(){
     noStroke();
     if(this.isMouseOver()){
-      fill(240);
-    }else{
       fill(255);
+      stroke(0);
+      strokeWeight(3);
+    }else{
+      fill(220);
     }
     rect(this.x, this.y, this.w, this.h, 12);
+
     fill(0);
+    noStroke();
     textSize(this.textSize);
     textAlign(LEFT, CENTER);
     text(this.text, this.x + this.w / 2 - textWidth(this.text) / 2, this.y + this.h / 2 + 10 / 2);
