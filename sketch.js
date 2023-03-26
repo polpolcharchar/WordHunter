@@ -39,7 +39,7 @@ let score = 0;
 
 //game state variables
 let gameState;
-const gameTicks = 3_000;
+const gameTicks = 9_000;
 let gameTicksRemaining;
 let pathIndex;
 let buttons;
@@ -502,7 +502,8 @@ function mouseReleased(){
 
 
 
-    gameTicksRemaining += wordScore * 100;
+    //gameTicksRemaining += wordScore * 100;
+    gameTicksRemaining += 50;
 
     //add particles along the path
     if(particlesEnabled){
