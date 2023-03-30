@@ -39,6 +39,7 @@ let score = 0;
 
 //game state variables
 let gameState;
+let mouseReleasedAfterGameBegin = false;
 const gameTicks = 9_000;
 let gameTicksRemaining;
 let pathIndex;
@@ -134,6 +135,11 @@ function draw() {
 
       //unselect all cells
       setAllCellsUnselected();
+
+      //select the current path
+      for(let i = 0; i < existingPaths[pathIndex].length; i++){
+        cells[existingPaths[pathIndex][i][0]][existingPaths[pathIndex][i][1]].selected = true;
+      }
     }
   }else if(gameState == "end"){
     drawEnd();
@@ -179,15 +185,21 @@ function drawEnd(){
 
   drawCells();
 
-  //for each point in currentPath, move it slightly closer to the point at the same index in existingPaths[pathIndex]
-  for (let i = 0; i < currentPath.length; i++) {
-    //currentPath[i][0] += (existingPaths[pathIndex][i][0] - currentPath[i][0]) / 10;
-    //currentPath[i][1] += (existingPaths[pathIndex][i][1] - currentPath[i][1]) / 10;
+  try{
+    //for each point in currentPath, move it slightly closer to the point at the same index in existingPaths[pathIndex]
+    for (let i = 0; i < currentPath.length; i++) {
+      currentPath[i][0] += (existingPaths[pathIndex][i][0] - currentPath[i][0]) / 10;
+      currentPath[i][1] += (existingPaths[pathIndex][i][1] - currentPath[i][1]) / 10;
+    }
+  }catch (e){
+    //sometimes the first path is just a list of numbers
+    //adding a try catch fixes it, it still does what i want somehow
   }
 
   //draw the path at existingPaths[pathIndex] as a curve
   noFill();
-  stroke(20, 80, 255, sin(frameCount / 10) * 50 + 200);
+  //stroke(20, 80, 255, sin(frameCount / 10) * 50 + 200);
+  stroke(20, 80, 255);
   strokeWeight(5);
   beginShape();
   for (let i = 0; i < currentPath.length; i++) {
@@ -421,8 +433,15 @@ function drawCells(){
     for (let j = 0; j < cells[i].length; j++) {
       //if the letter is selected, fill the cell with red
       if (cells[i][j].selected) {
-        //if the word is a word, fill the cell with green
-        if (isCurrentSelectedAWord) {
+        if(gameState == "end"){
+
+          if(foundWords.includes(existingWords[pathIndex])){
+            fill(0, 255, 0, sin(frameCount / 20) * 35 + 200);
+          }else{
+            fill(0, 0, 255, sin(frameCount / 20) * 35 + 220);
+          }          
+
+        } else if (isCurrentSelectedAWord) {
           if(isCurrentAlreadyFound){
             fill(255, 255, 0);
           }else{
@@ -467,7 +486,7 @@ function generateCode(){
   let code = "";
   for (let i = 0; i < len; i++) {
     for (let j = 0; j < len; j++) {
-      code += letters[floor(random(letters.length))];
+      code += getWeightedRandomLetter();
     }
   }
   //default encoding
@@ -487,49 +506,59 @@ function mouseReleased(){
     return;
   }
 
-  //if the word is a found word, print it
-  if(foundWords.includes(currentWord)){
-    //c0nsole.log("You already found " + currentWord);
-  } else if (existingWords.includes(currentWord)) {
-    let wordScore = getWordScore(currentWord);
+  if(gameState == "game"){
 
-    score += wordScore;
-
-    //insert them into the beginning of the list
-    foundWords.unshift(currentWord);
-    foundScores.unshift(wordScore);
-    foundTicks.unshift(0);
-
-
-
-    //gameTicksRemaining += wordScore * 100;
-    gameTicksRemaining += 50;
-
-    //add particles along the path
-    if(particlesEnabled){
-      for (let i = 0; i < currentPath.length; i++) {
-        for(let n = 0; n < 80 / currentPath.length; n++){
-          particleHandler.addParticle(currentPath[i][0] * gridSize + gridSize / 2 + (width - len * gridSize) / 2
-          , currentPath[i][1] * gridSize + gridSize / 2 + (height - len * gridSize) / 2
-          , 10
-          , [Math.random() * 15, Math.random() * 80, 200 + Math.random() * 50]
-          , 100);
+    if(!mouseReleasedAfterGameBegin){
+      mouseReleasedAfterGameBegin = true;
+      setAllCellsUnselected();
+    }else{
+      
+      //if the word is a found word, print it
+      if(foundWords.includes(currentWord)){
+        //c0nsole.log("You already found " + currentWord);
+      } else if (existingWords.includes(currentWord)) {
+        let wordScore = getWordScore(currentWord);
+  
+        score += wordScore;
+  
+        //insert them into the beginning of the list
+        foundWords.unshift(currentWord);
+        foundScores.unshift(wordScore);
+        foundTicks.unshift(0);
+  
+  
+  
+        //gameTicksRemaining += wordScore * 100;
+        gameTicksRemaining += 50;
+  
+        //add particles along the path
+        if(particlesEnabled){
+          for (let i = 0; i < currentPath.length; i++) {
+            for(let n = 0; n < 80 / currentPath.length; n++){
+              particleHandler.addParticle(currentPath[i][0] * gridSize + gridSize / 2 + (width - len * gridSize) / 2
+              , currentPath[i][1] * gridSize + gridSize / 2 + (height - len * gridSize) / 2
+              , 10
+              , [Math.random() * 15, Math.random() * 80, 200 + Math.random() * 50]
+              , 100);
+            }
+          }
         }
+  
+      }else if(currentWord != ""){
+        console.log(currentWord + " is not a word");
+        gameTicksRemaining -= 150;
+        score -= 1;
+        if(score < 0)score = 0;
       }
+  
+      //reset the word
+      currentWord = "";
+      currentPath = [];
+  
+      setAllCellsUnselected();
+
     }
-
-  }else{
-    //c0nsole.log(currentWord + " is not a word");
-    gameTicksRemaining -= 200;
-    score -= 2;
-    
   }
-
-  //reset the word
-  currentWord = "";
-  currentPath = [];
-
-  setAllCellsUnselected();
 }
 
 function keyPressed(){
@@ -555,6 +584,14 @@ function keyPressed(){
     while(currentPath.length > existingPaths[pathIndex].length){
       currentPath.pop();
     }
+
+
+    setAllCellsUnselected();
+    for(let i = 0; i < existingPaths[pathIndex].length; i++){
+      cells[existingPaths[pathIndex][i][0]][existingPaths[pathIndex][i][1]].selected = true;
+    }
+
+
 
   }else if(gameState == "game"){
     //if the z key is pressed, set gameTicks to 0
@@ -583,7 +620,7 @@ function windowResized() {
 
 function checkMousePosition(){
   //if the mouse is pressed over an unselected cell, select it and add the letter to the word
-  if (mouseIsPressed) {
+  if (mouseIsPressed && mouseReleasedAfterGameBegin) {
 
     //if the mouse is within a circle of radius selectRadius around the center of the cell, select the cell
     let xIndex = floor((mouseX - (width - len * gridSize) / 2) / gridSize);
