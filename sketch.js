@@ -547,7 +547,7 @@ function mouseReleased(){
       }else if(currentWord != ""){
         console.log(currentWord + " is not a word");
         gameTicksRemaining -= 150;
-        score -= 1;
+        score -= 0;//this is where score decreases when u get it wrong
         if(score < 0)score = 0;
       }
   
